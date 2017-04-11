@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE struts PUBLIC
+	"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"
+	"http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+
+	<constant name="struts.enable.DynamicMethodInvocation" value="false" />
+	<constant name="struts.devMode" value="true" />
+	<constant name="struts.custom.i18n.resources" value="i18n" />
+	<!-- 该限制为文件总大小限制，也是第一层文件大小的检验，因 tomcat 版本不同，超出后可能导致程序异常。可将其设置为-1 -->
+	<constant name="struts.multipart.maxSize" value="9000000" />
+
+	<package name="default" namespace="/" extends="struts-default">
+		<interceptors>
+			<interceptor name="hello" class="com.zjh.intercepter.MyIntercepter"></interceptor>
+			<interceptor-stack name="myIntercepterStack">
+				<interceptor-ref name="defaultStack">
+					<!-- 该限制为单个文件的限制，是第二层限制，也是拦截器层的限制，超出限制出现字段错误，错误信息可定制 -->
+					<param name="fileUpload.maximumSize">2000000</param>
+					<!-- <param name="fileUpload.allowedTypes">text/html,text/xml</param> -->
+					<!-- <param name="fileUpload.allowedExtensions">html,dtd,xml</param> -->
+				</interceptor-ref>
+			</interceptor-stack>
+		</interceptors>
+
+		<default-interceptor-ref name="myIntercepterStack"></default-interceptor-ref>
+		<action name="testFileUpload" class="com.zjh.action.FileUploadAction">
+			<result>/success.jsp</result>
+			<result name="input">/index.jsp</result>
+		</action>
+
+		<action name="testDownLoad" class="com.zjh.action.FileDownLoadAction">
+			<result type="stream">
+				<param name="bufferSize">2048</param>
+			</result>
+		</action>
+
+		<action name="testToken" class="com.zjh.action.TokenAction">
+			<interceptor-ref name="hello"></interceptor-ref>
+			<interceptor-ref name="tokenSession"></interceptor-ref>
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<result name="invalid.token">/tokenValid.jsp</result>
+			<result>/success.jsp</result>
+		</action>
+	</package>
+</struts>
